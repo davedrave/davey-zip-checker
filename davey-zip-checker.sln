@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36414.22 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Davey.ZipChecker.Cli", "Davey.ZipChecker.Cli\Davey.ZipChecker.Cli.csproj", "{1236E88F-1887-415D-9960-E438BECDF090}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Davey.ZipChecker.Core", "Davey.ZipChecker.Core\Davey.ZipChecker.Core.csproj", "{CA76DC21-019D-4274-A1EF-4EDD09F9D503}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1236E88F-1887-415D-9960-E438BECDF090}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1236E88F-1887-415D-9960-E438BECDF090}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1236E88F-1887-415D-9960-E438BECDF090}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1236E88F-1887-415D-9960-E438BECDF090}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CA76DC21-019D-4274-A1EF-4EDD09F9D503}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA76DC21-019D-4274-A1EF-4EDD09F9D503}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA76DC21-019D-4274-A1EF-4EDD09F9D503}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA76DC21-019D-4274-A1EF-4EDD09F9D503}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {EBFF93E2-1291-4F31-98C8-9A7589AD551D}
+	EndGlobalSection
+EndGlobal
