@@ -1,4 +1,5 @@
-﻿using Spectre.Console.Cli;
+﻿using Spectre.Console;
+using Spectre.Console.Cli;
 using System.ComponentModel;
 
 namespace DaveyZipChecker.Cli.Commands;
@@ -6,10 +7,27 @@ namespace DaveyZipChecker.Cli.Commands;
 public sealed class DiffSettings : CommandSettings
 {
     [CommandOption("--zip <ZIP>")]
-    [Description("Path to the ZIP file")]
-    public string ZipPath { get; init; } = string.Empty;
+    [Description("Path to a ZIP file (can be specified multiple times)")]
+    public IReadOnlyList<string> ZipPaths { get; init; } = new List<string>();
 
     [CommandOption("--folder <FOLDER>")]
     [Description("Path to the folder")]
     public string FolderPath { get; init; } = string.Empty;
+
+    public override ValidationResult Validate()
+    {
+        if (ZipPaths.Count == 0)
+            return ValidationResult.Error("At least one --zip must be specified.");
+
+        foreach (string zip in ZipPaths)
+        {
+            if (!File.Exists(zip))
+                return ValidationResult.Error($"ZIP file not found: {zip}");
+        }
+
+        if (!Directory.Exists(FolderPath))
+            return ValidationResult.Error($"Folder not found: {FolderPath}");
+
+        return ValidationResult.Success();
+    }
 }

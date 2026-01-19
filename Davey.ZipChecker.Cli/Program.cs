@@ -16,6 +16,7 @@ namespace DaveyZipChecker.Cli
                 config.AddCommand<DiffCommand>("diff")
                       .WithDescription("Compare the contents of a ZIP file with a folder");
 
+
 #if DEBUG
                 // Helpful during development
                 config.PropagateExceptions();
