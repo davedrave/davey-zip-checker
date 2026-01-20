@@ -1,4 +1,4 @@
-using Davey.ZipChecker;
+﻿using Davey.ZipChecker;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -21,24 +21,20 @@ public class ZipContentLister : IContentLister
         using var zip = ZipFile.OpenRead(path);
         var results = new List<ZipEntryInfo>(zip.Entries.Count);
 
-        foreach (var entry in zip.Entries)
-        {
-            // Normalize separators to forward slash for consistent comparisons
-            string normalized = entry.FullName.Replace('\\', '/');
-            bool isDirectory = normalized.EndsWith("/");
+        return zip.Entries
+                   // 🔑 Ignore directory entries
+                   .Where(entry => !string.IsNullOrEmpty(entry.Name))
+                   .Select(entry =>
+                   {
+                       // Normalize separators for consistent comparison
+                       string normalized = entry.FullName.Replace('\\', '/');
 
-            DateTimeOffset? lastWrite = null;
-            // ZipArchiveEntry.LastWriteTime is a DateTimeOffset (non-nullable). check for default/min value.
-            if (entry.LastWriteTime != default)
-                lastWrite = entry.LastWriteTime;
-
-            results.Add(new ZipEntryInfo(
-                Path: normalized,
-                IsDirectory: isDirectory
-            ));
-        }
-
-        return results;
+                       return new ZipEntryInfo(
+                           Path: normalized,
+                           IsDirectory: false
+                       );
+                   })
+                   .ToList();
     }
 
     

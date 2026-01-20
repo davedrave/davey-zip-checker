@@ -23,7 +23,7 @@ namespace Davey.ZipChecker
             var baseFull = Path.GetFullPath(path);
 
             // Enumerate files and directories recursively. Include directories so empty directories are represented.
-            var entries = Directory.EnumerateFileSystemEntries(baseFull, "*", SearchOption.AllDirectories)
+            var entries = Directory.EnumerateFiles(baseFull, "*", SearchOption.AllDirectories)
                                    .OrderBy(p => p, StringComparer.OrdinalIgnoreCase);
 
             var results = new List<ZipEntryInfo>();

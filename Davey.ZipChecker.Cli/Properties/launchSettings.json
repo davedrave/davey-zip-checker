@@ -2,7 +2,7 @@
   "profiles": {
     "Davey.ZipChecker.Cli": {
       "commandName": "Project",
-      "commandLineArgs": "--zip C:\\Temp\\Temp.zip --zip C:\\Temp\\Temp2.zip --folder C:\\Temp\\Temp\n"
+      "commandLineArgs": "diff --zip C:\\Temp\\Temp.zip --zip C:\\Temp\\Temp2.zip --folder C:\\Temp\\Temp\n"
     }
   }
 }

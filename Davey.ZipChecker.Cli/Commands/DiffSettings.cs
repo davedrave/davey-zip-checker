@@ -8,7 +8,7 @@ public sealed class DiffSettings : CommandSettings
 {
     [CommandOption("--zip <ZIP>")]
     [Description("Path to a ZIP file (can be specified multiple times)")]
-    public IReadOnlyList<string> ZipPaths { get; init; } = new List<string>();
+    public string[] ZipPaths { get; set; } = Array.Empty<string>();
 
     [CommandOption("--folder <FOLDER>")]
     [Description("Path to the folder")]
@@ -16,7 +16,7 @@ public sealed class DiffSettings : CommandSettings
 
     public override ValidationResult Validate()
     {
-        if (ZipPaths.Count == 0)
+        if (ZipPaths.Length == 0)
             return ValidationResult.Error("At least one --zip must be specified.");
 
         foreach (string zip in ZipPaths)
