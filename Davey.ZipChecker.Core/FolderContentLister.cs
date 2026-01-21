@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Davey.ZipChecker.Core;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -11,7 +12,12 @@ namespace Davey.ZipChecker
         /// Produces relative paths (relative to <paramref name="path"/>) using '/' as the separator.
         /// Directories are implicit via file paths and are not emitted.
         /// </summary>
-        public IReadOnlyList<ZipEntryInfo> ListContents(string path)
+        public IReadOnlyList<ZipEntryInfo> ListContents
+        (
+            string path,
+            IScanProgress? progress = null,
+            CancellationToken cancellationToken = default
+        )
         {
             if (path is null)
                 throw new ArgumentNullException(nameof(path));
@@ -19,12 +25,19 @@ namespace Davey.ZipChecker
             if (!Directory.Exists(path))
                 throw new DirectoryNotFoundException($"Directory not found: {path}");
 
+            progress?.Started("Scanning folder");
+            
+            int count = 0;
             string baseFull = Path.GetFullPath(path);
             var results = new List<ZipEntryInfo>();
 
             foreach (string full in Directory.EnumerateFiles(
                          baseFull, "*", SearchOption.AllDirectories))
             {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                count++;
+                progress?.FilesScanned(count);
                 string relative = Path
                     .GetRelativePath(baseFull, full)
                     .Replace('\\', '/');
@@ -34,6 +47,7 @@ namespace Davey.ZipChecker
                     IsDirectory: false));
             }
 
+            progress?.Completed(count);
             return results;
         }
     }

@@ -1,4 +1,5 @@
 ﻿using Davey.ZipChecker;
+using Davey.ZipChecker.Cli;
 using Spectre.Console.Cli;
 using System;
 using System.Threading;
@@ -12,33 +13,41 @@ public sealed class DiffCommand : Command<DiffSettings>
         DiffSettings settings,
         CancellationToken cancellationToken)
     {
-        Console.WriteLine("Diff command executed");
-        foreach (string zipPath in settings.ZipPaths)
-        {
-            Console.WriteLine($"Processing ZIP: {zipPath}");
-            // call core diff logic here
-        }
-        Console.WriteLine($"Folder: {settings.FolderPath}");
-
         // Determine zip path: prefer first argument, otherwise prompt interactively.
         IReadOnlyList<string> zipPaths = settings.ZipPaths;
         string folderPath = settings.FolderPath;
 
+        Console.WriteLine($"Comparing {zipPaths.Count} ZIP(s) to folder:");
+        Console.WriteLine($"  {folderPath}");
+        Console.WriteLine();
+
         List<IReadOnlyList<ZipEntryInfo>> zipEntries = new();
 
-        foreach (string zipPath in zipPaths)
+        for (int i = 0; i < zipPaths.Count; i++)
         {
-            var entries = ContentListerFactory.Create(zipPath).ListContents(zipPath);
+            Console.WriteLine($"[{i + 1}/{zipPaths.Count}] Scanning ZIP: {Path.GetFileName(zipPaths[i])}");
+
+            
+            IReadOnlyList<ZipEntryInfo> entries = ContentListerFactory.Create(zipPaths[i]).ListContents(zipPaths[i]);
             zipEntries.Add(entries);
 
-            Console.WriteLine($"{zipEntries.Count} entries found in {Path.GetFullPath(zipPath)} ():");
+            Console.WriteLine($"    Found {entries.Count:N0} files");
         }
-        var folderEntries = ContentListerFactory.Create(folderPath).ListContents(folderPath);
+
+        Console.WriteLine();
+
+        Console.WriteLine("Scanning folder...");
+        ConsoleScanProgress consoleScanProgress = new();
+        var folderEntries = ContentListerFactory.Create(folderPath).ListContents(folderPath, consoleScanProgress);
+
+        Console.WriteLine($"Folder scan complete ({folderEntries.Count:N0} files).");
+        Console.WriteLine();
 
         // Compute and display diff
-        foreach (var e in zipEntries)
+        for (int i = 0; i < zipEntries.Count; i++)
         {
-            var diff = DiffChecker.ComputeDiff(e, folderEntries);
+            Console.WriteLine($"Diffing ZIP [{i + 1}/{zipEntries.Count}]");
+            var diff = DiffChecker.ComputeDiff(zipEntries[i], folderEntries);
 
             Console.WriteLine();
             Console.WriteLine($"Only in ZIP ({diff.OnlyInA.Count}):");
@@ -56,11 +65,10 @@ public sealed class DiffCommand : Command<DiffSettings>
         }
 
         Console.WriteLine();
-
-        // Wait for the user to press a key before exiting.
-        Console.WriteLine("Press any key to exit...");
-        Console.ReadKey(true);
-
+        #if DEBUG
+            Console.WriteLine("Press any key to exit...");
+            Console.ReadKey(true);
+        #endif
         return 0;
 
     }

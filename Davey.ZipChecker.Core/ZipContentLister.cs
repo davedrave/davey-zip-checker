@@ -1,4 +1,5 @@
 ﻿using Davey.ZipChecker;
+using Davey.ZipChecker.Core;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,8 +14,13 @@ public class ZipContentLister : IContentLister
     /// Throws FileNotFoundException if the zip file does not exist,
     /// InvalidDataException for malformed zip files, and other IO exceptions as appropriate.
     /// </summary>
-    public IReadOnlyList<ZipEntryInfo> ListContents(string path)
-    {
+    public IReadOnlyList<ZipEntryInfo> ListContents
+    (
+        string path,
+        IScanProgress? progress = null,
+        CancellationToken cancellationToken = default
+    )
+{
         if (path is null) throw new ArgumentNullException(nameof(path));
         if (!File.Exists(path)) throw new FileNotFoundException("Zip file not found.", path);
 

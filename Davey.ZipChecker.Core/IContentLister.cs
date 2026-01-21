@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Davey.ZipChecker.Core;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,11 @@ namespace Davey.ZipChecker
 {
     public interface IContentLister
     {
-        public IReadOnlyList<ZipEntryInfo> ListContents(string path);
+        public IReadOnlyList<ZipEntryInfo> ListContents
+        (
+            string path,
+            IScanProgress? progress = null,
+            CancellationToken cancellationToken = default
+        );
     }
 }
