@@ -43,16 +43,6 @@ public sealed class DiffCommand : Command<DiffSettings>
         }
         var folderEntries = ContentListerFactory.Create(folderPath).ListContents(folderPath);
 
-
-
-        Console.WriteLine();
-        Console.WriteLine($"Contents of {Path.GetFullPath(folderPath)} ({folderEntries.Count} entries):");
-        foreach (var e in folderEntries)
-        {
-            var flag = e.IsDirectory ? "[D]" : "[F]";
-            Console.WriteLine($"{flag} {e.Path}");
-        }
-
         // Compute and display diff
         foreach (var e in zipEntries)
         {
@@ -71,18 +61,6 @@ public sealed class DiffCommand : Command<DiffSettings>
                 }
             }
 
-            Console.WriteLine();
-            Console.WriteLine($"Only in Folder ({diff.OnlyInB.Count}):");
-            if (diff.OnlyInB.Count == 0)
-                Console.WriteLine("  (none)");
-            else
-            {
-                foreach (var f in diff.OnlyInB)
-                {
-                    var flag = f.IsDirectory ? "[D]" : "[F]";
-                    Console.WriteLine($"  {flag} {f.Path}");
-                }
-            }
         }
 
         Console.WriteLine();
