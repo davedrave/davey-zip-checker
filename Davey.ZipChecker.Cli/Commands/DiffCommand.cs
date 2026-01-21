@@ -31,15 +31,7 @@ public sealed class DiffCommand : Command<DiffSettings>
             var entries = ContentListerFactory.Create(zipPath).ListContents(zipPath);
             zipEntries.Add(entries);
 
-            Console.WriteLine($"Contents of {Path.GetFullPath(zipPath)} ({zipEntries.Count} entries):");
-            foreach (var e in zipEntries)
-            {
-                foreach (var f in e)
-                {
-                    var flag = f.IsDirectory ? "[D]" : "[F]";
-                    Console.WriteLine($"{flag} {f.Path}");
-                }
-            }
+            Console.WriteLine($"{zipEntries.Count} entries found in {Path.GetFullPath(zipPath)} ():");
         }
         var folderEntries = ContentListerFactory.Create(folderPath).ListContents(folderPath);
 
