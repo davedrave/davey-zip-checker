@@ -12,4 +12,8 @@
     <Folder Include="Commands\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="NetworkConnection" Version="1.0.19" />
+  </ItemGroup>
+
 </Project>
