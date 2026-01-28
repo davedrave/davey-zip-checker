@@ -14,34 +14,37 @@ public class ZipContentLister : IContentLister
     /// Throws FileNotFoundException if the zip file does not exist,
     /// InvalidDataException for malformed zip files, and other IO exceptions as appropriate.
     /// </summary>
-    public IReadOnlyList<ZipEntryInfo> ListContents
-    (
+    public IReadOnlyList<ZipEntryInfo> ListContents(
         string path,
+        ListOptions? options = null,
         IScanProgress? progress = null,
-        CancellationToken cancellationToken = default
-    )
-{
+        CancellationToken cancellationToken = default)
+    {
         if (path is null) throw new ArgumentNullException(nameof(path));
         if (!File.Exists(path)) throw new FileNotFoundException("Zip file not found.", path);
 
         using var zip = ZipFile.OpenRead(path);
         var results = new List<ZipEntryInfo>(zip.Entries.Count);
 
-        return zip.Entries
-                   // 🔑 Ignore directory entries
-                   .Where(entry => !string.IsNullOrEmpty(entry.Name))
-                   .Select(entry =>
-                   {
-                       // Normalize separators for consistent comparison
-                       string normalized = entry.FullName.Replace('\\', '/');
 
-                       return new ZipEntryInfo(
-                           Path: normalized,
-                           IsDirectory: false
-                       );
-                   })
-                   .ToList();
+        foreach (var entry in zip.Entries)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            // Ignore directory entries
+            if (string.IsNullOrEmpty(entry.Name))
+                continue;
+
+            string raw = entry.FullName.Replace('\\', '/');
+
+            if (!PathNormaliser.TryNormalise(raw, options?.StripRoot, out var normalised))
+                continue;
+
+            results.Add(new ZipEntryInfo(normalised, IsDirectory: false));
+            progress?.FilesScanned(results.Count);
+        }
+
+        progress?.Completed(results.Count);
+        return results;
     }
-
-    
 }

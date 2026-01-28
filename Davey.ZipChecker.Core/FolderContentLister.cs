@@ -15,6 +15,7 @@ namespace Davey.ZipChecker
         public IReadOnlyList<ZipEntryInfo> ListContents
         (
             string path,
+            ListOptions? options = null,
             IScanProgress? progress = null,
             CancellationToken cancellationToken = default
         )
@@ -36,11 +37,18 @@ namespace Davey.ZipChecker
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                count++;
-                progress?.FilesScanned(count);
+                // Relative path from the chosen folder root
                 string relative = Path
                     .GetRelativePath(baseFull, full)
                     .Replace('\\', '/');
+
+                // Optional root stripping (same semantics as ZIP)
+                if (!PathNormaliser.TryNormalise(relative, options?.StripRoot, out var normalised))
+                    continue;
+
+                count++;
+                progress?.FilesScanned(count);
+
 
                 results.Add(new ZipEntryInfo(
                     Path: relative,

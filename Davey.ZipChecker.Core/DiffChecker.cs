@@ -49,53 +49,64 @@ namespace Davey.ZipChecker
         /// <param name="keySelector">Function that returns the key identifying a ZipEntryInfo (e.g., FullName).</param>
         /// <param name="keyComparer">Comparer for keys (defaults to Ordinal).</param>
         /// <returns>DiffResult containing lists OnlyInA and OnlyInB.</returns>
-        public static DiffResult<ZipEntryInfo> ComputeDiff(
+        public static DiffResult<ZipEntryInfo> ComputeDiff
+        (
             IReadOnlyCollection<ZipEntryInfo> a,
             IReadOnlyCollection<ZipEntryInfo> b,
-            IEqualityComparer<string>? keyComparer = null)
+            Func<ZipEntryInfo, string> keySelector,
+            IEqualityComparer<string>? keyComparer = null
+        )
         {
             if (a is null) throw new ArgumentNullException(nameof(a));
             if (b is null) throw new ArgumentNullException(nameof(b));
+            if (keySelector is null) throw new ArgumentNullException(nameof(keySelector));
 
             keyComparer ??= StringComparer.Ordinal;
 
-            // Build lookup for B: key -> list of items with that key (preserve duplicates)
+            // Build lookup for B
             var lookupB = new Dictionary<string, List<ZipEntryInfo>>(keyComparer);
+
             foreach (var item in b)
             {
-                if (!lookupB.TryGetValue(item.Path, out var list))
+                var key = keySelector(item) ?? string.Empty;
+
+                if (!lookupB.TryGetValue(key, out var list))
                 {
                     list = new List<ZipEntryInfo>();
-                    lookupB[item.Path] = list;
+                    lookupB[key] = list;
                 }
+
                 list.Add(item);
             }
 
             var onlyInA = new List<ZipEntryInfo>();
             var keysInA = new HashSet<string>(keyComparer);
 
-            // Iterate A: collect keys and items whose key is not present in B
+            // Scan A
             foreach (var item in a)
             {
-                keysInA.Add(item.Path);
-                if (!lookupB.ContainsKey(item.Path))
+                var key = keySelector(item) ?? string.Empty;
+                keysInA.Add(key);
+
+                if (!lookupB.ContainsKey(key))
                 {
                     onlyInA.Add(item);
                 }
             }
 
-            // Items in B whose key did not appear in A
+            // Anything in B not seen in A
             var onlyInB = new List<ZipEntryInfo>();
+
             foreach (var kv in lookupB)
             {
                 if (!keysInA.Contains(kv.Key))
                 {
-                    // add all items that share this key
                     onlyInB.AddRange(kv.Value);
                 }
             }
 
             return new DiffResult<ZipEntryInfo>(onlyInA, onlyInB);
         }
+
     }
 }

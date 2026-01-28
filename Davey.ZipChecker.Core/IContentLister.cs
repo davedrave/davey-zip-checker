@@ -12,6 +12,7 @@ namespace Davey.ZipChecker
         public IReadOnlyList<ZipEntryInfo> ListContents
         (
             string path,
+            ListOptions? options = null,
             IScanProgress? progress = null,
             CancellationToken cancellationToken = default
         );

@@ -1,5 +1,6 @@
 ﻿using Davey.ZipChecker;
 using Davey.ZipChecker.Cli;
+using Davey.ZipChecker.Core;
 using Spectre.Console.Cli;
 using System;
 using System.Threading;
@@ -27,8 +28,13 @@ public sealed class DiffCommand : Command<DiffSettings>
         {
             Console.WriteLine($"[{i + 1}/{zipPaths.Count}] Scanning ZIP: {Path.GetFileName(zipPaths[i])}");
 
-            
-            IReadOnlyList<ZipEntryInfo> entries = ContentListerFactory.Create(zipPaths[i]).ListContents(zipPaths[i]);
+            ListOptions zipOptions = new ListOptions
+            {
+                StripRoot = settings.StripZipRoot
+            };
+
+
+            IReadOnlyList<ZipEntryInfo> entries = new ZipContentLister().ListContents(zipPaths[i], zipOptions);
             zipEntries.Add(entries);
 
             Console.WriteLine($"    Found {entries.Count:N0} files");
@@ -38,7 +44,7 @@ public sealed class DiffCommand : Command<DiffSettings>
 
         Console.WriteLine("Scanning folder...");
         ConsoleScanProgress consoleScanProgress = new();
-        var folderEntries = ContentListerFactory.Create(folderPath).ListContents(folderPath, consoleScanProgress);
+        var folderEntries = new FolderContentLister().ListContents(folderPath, null, consoleScanProgress);
 
         Console.WriteLine($"Folder scan complete ({folderEntries.Count:N0} files).");
         Console.WriteLine();
@@ -47,7 +53,13 @@ public sealed class DiffCommand : Command<DiffSettings>
         for (int i = 0; i < zipEntries.Count; i++)
         {
             Console.WriteLine($"Diffing ZIP [{i + 1}/{zipEntries.Count}]");
-            var diff = DiffChecker.ComputeDiff(zipEntries[i], folderEntries);
+            var diff = DiffChecker.ComputeDiff
+            (
+                zipEntries[i],
+                folderEntries,
+                e => ComparisonPathNormaliser.Normalise(e.Path),
+                StringComparer.OrdinalIgnoreCase
+            );
 
             Console.WriteLine();
             Console.WriteLine($"Only in ZIP ({diff.OnlyInA.Count}):");

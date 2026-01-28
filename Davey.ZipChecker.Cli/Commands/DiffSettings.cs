@@ -14,6 +14,12 @@ public sealed class DiffSettings : CommandSettings
     [Description("Path to the folder")]
     public string FolderPath { get; init; } = string.Empty;
 
+
+    [CommandOption("--strip-zip-root <PATH>")]
+    [Description("Strip this leading path from ZIP entries")]
+    public string? StripZipRoot { get; init; }
+
+
     public override ValidationResult Validate()
     {
         if (ZipPaths.Length == 0)
