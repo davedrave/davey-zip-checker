@@ -20,6 +20,14 @@ public sealed class DiffSettings : CommandSettings
     public string? StripZipRoot { get; init; }
 
 
+    [CommandOption("--username <USERNAME>")]
+    [Description("Username for network share authentication (optional)")]
+    public string? Username { get; set; }
+
+    [CommandOption("--password <PASSWORD>")]
+    [Description("Password for network share authentication (optional)")]
+    public string? Password { get; set; }
+
     public override ValidationResult Validate()
     {
         if (ZipPaths.Length == 0)
@@ -33,6 +41,13 @@ public sealed class DiffSettings : CommandSettings
 
         if (!Directory.Exists(FolderPath))
             return ValidationResult.Error($"Folder not found: {FolderPath}");
+
+        // Validate that if username is provided, password must also be provided
+        if (!string.IsNullOrEmpty(Username) && string.IsNullOrEmpty(Password))
+            return ValidationResult.Error("Password must be provided when username is specified.");
+
+        if (!string.IsNullOrEmpty(Password) && string.IsNullOrEmpty(Username))
+            return ValidationResult.Error("Username must be provided when password is specified.");
 
         return ValidationResult.Success();
     }

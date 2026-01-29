@@ -20,7 +20,7 @@ namespace Davey.ZipChecker.Cli
 
         public void FilesScanned(int count)
         {
-            if (_sw.Elapsed.TotalSeconds >= 10)
+            if (_sw.Elapsed.TotalSeconds >= 2)
             {
                 Console.WriteLine($"  Scanning... {count:N0} files so far");
                 _sw.Restart();
